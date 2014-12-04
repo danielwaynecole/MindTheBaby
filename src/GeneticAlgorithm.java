@@ -4,7 +4,6 @@ public class GeneticAlgorithm {
 
 	// Evolve a population
 	public static Population evolvePopulation(Population pop) {
-		System.out.println("we have been called to evolve");
 		// Keep our best individual
 		Room dontMutateMe = pop.getFittest();
 		// Mutate population
@@ -20,14 +19,11 @@ public class GeneticAlgorithm {
 	}
 
 	// Mutate an individual
-	private static void mutate(Room indiv) {
-		System.out.println("we have been called to mutate");
-
+	private static void mutate(Room individual) {
 		if (Math.random() <= mutationRate) {
-			System.out.println("we are mutating");
 			int maxArea = 0;
 			int minArea = 0;
-			switch(indiv.getRoomType()){
+			switch(individual.getRoomType()){
 			case Room.BATHROOM:
 				maxArea = Bathroom.MAX_SQUARE_FOOTAGE;
 				minArea = Bathroom.MIN_SQUARE_FOOTAGE;
@@ -51,6 +47,7 @@ public class GeneticAlgorithm {
 			}
 			// coin flip
 			int doLength = MTBGame.randInt(0, 1);
+			// 70% chance of increase, 30% chance of decrease
 			int increaseLength = (MTBGame.randInt(0, 10) > 3) ? 1 : 0;
 			int doWidth = MTBGame.randInt(0, 1);
 			int increaseWidth = (MTBGame.randInt(0, 10) > 3) ? 1 : 0;;
@@ -59,16 +56,15 @@ public class GeneticAlgorithm {
 				switch(increaseLength){
 				case 0:
 					decreaseBy = MTBGame.randInt(1, 3);
-					newLength = indiv.getLength() - decreaseBy;
-					if(newLength > 4 && (newLength * indiv.getWidth()) > minArea){
+					newLength = individual.getLength() - decreaseBy;
+					if(newLength > 4 && (newLength * individual.getWidth()) > minArea){
 						if(newLength < 5){
 							System.out.println("case 0 new length: " + newLength);
 							System.exit(0);
 						}
 						try {
-							indiv.setLength(newLength);
+							individual.setLength(newLength);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							System.exit(1);
 						}
@@ -78,34 +74,31 @@ public class GeneticAlgorithm {
 					}
 				case 1:
 					increaseBy = MTBGame.randInt(1, 3);
-					newLength = indiv.getLength() + increaseBy;
-					System.out.println("new length: " + newLength);
-					if(indiv.getRoomType() == Room.BATHROOM){
-						if((newLength * indiv.getWidth()) > Bathroom.MAX_SQUARE_FOOTAGE){
+					newLength = individual.getLength() + increaseBy;
+					if(individual.getRoomType() == Room.BATHROOM){
+						if((newLength * individual.getWidth()) > Bathroom.MAX_SQUARE_FOOTAGE){
 							// do nothing
 							break;
 						}
 					}
 					try {
-						indiv.setLength(newLength);
+						individual.setLength(newLength);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 						System.exit(1);
 					}
 					break;
 				default:
 					decreaseBy = MTBGame.randInt(1, 3);
-					newLength = indiv.getLength() - decreaseBy;
-					if(newLength > 4 && (newLength * indiv.getWidth()) > minArea){
+					newLength = individual.getLength() - decreaseBy;
+					if(newLength > 4 && (newLength * individual.getWidth()) > minArea){
 						if(newLength < 5){
 							System.out.println("default new length: " + newLength);
 							System.exit(0);
 						}
 						try {
-							indiv.setLength(newLength);
+							individual.setLength(newLength);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							System.exit(1);
 						}
@@ -116,16 +109,15 @@ public class GeneticAlgorithm {
 				switch(increaseWidth){
 				case 0:
 					decreaseBy = MTBGame.randInt(1, 3);
-					newWidth = indiv.getWidth() - decreaseBy;
-					if(newWidth > 4 && (newWidth * indiv.getLength()) > minArea){
+					newWidth = individual.getWidth() - decreaseBy;
+					if(newWidth > 4 && (newWidth * individual.getLength()) > minArea){
 						if(newWidth < 5){
 							System.out.println("case 0 new width: " + newWidth);
 							System.exit(0);
 						}
 						try {
-							indiv.setWidth(newWidth);
+							individual.setWidth(newWidth);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							System.exit(1);
 						}
@@ -135,28 +127,25 @@ public class GeneticAlgorithm {
 					}
 				case 1:
 					increaseBy = MTBGame.randInt(1, 3);
-					newWidth = indiv.getWidth() + increaseBy;
-					System.out.println("new width: " + newWidth);
+					newWidth = individual.getWidth() + increaseBy;
 					try {
-						indiv.setWidth(newWidth);
+						individual.setWidth(newWidth);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 						System.exit(1);
 					}
 					break;
 				default:
 					decreaseBy = MTBGame.randInt(1, 3);
-					newWidth = indiv.getWidth() - decreaseBy;
-					if(newWidth > 4 && (newWidth * indiv.getLength()) > minArea){
+					newWidth = individual.getWidth() - decreaseBy;
+					if(newWidth > 4 && (newWidth * individual.getLength()) > minArea){
 						if(newWidth < 5){
 							System.out.println("default new width: " + newWidth);
 							System.exit(0);
 						}
 						try {
-							indiv.setWidth(newWidth);
+							individual.setWidth(newWidth);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 							System.exit(1);
 						}

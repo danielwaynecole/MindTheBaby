@@ -12,7 +12,6 @@ public class Population {
         this.numLivingRooms = numLivingRooms;
         this.numDiningRooms = numDiningRooms;
     	int populationSize = numBedrooms + numBathrooms + numLivingRooms + numKitchens + numDiningRooms;
-    	System.out.println("Population size: " + populationSize);
     	individuals = new Room[populationSize];
         // initialize population
         if (initialize) {
@@ -25,7 +24,6 @@ public class Population {
             	int height, width;
             	width = dimensions[0];
             	height = dimensions[1];
-            	System.out.println("Random Bedroom size: " + width + ":" + height);
                 Room newIndividual = new Bedroom(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i, newIndividual);
                 j = i + 1;
@@ -38,7 +36,6 @@ public class Population {
             	int height, width;
             	width = dimensions[0];
             	height = dimensions[1];
-            	System.out.println("Random Living Room size: " + width + ":" + height);
                 Room newIndividual = new LivingRoom(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i + j, newIndividual);
                 if(i == numLivingRooms - 1)
@@ -52,7 +49,6 @@ public class Population {
             	int height, width;
             	width = dimensions[0];
             	height = dimensions[1];
-            	System.out.println("Random Bathroom size: " + width + ":" + height);
                 Room newIndividual = new Bathroom(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i + j, newIndividual);
                 if(i == numBathrooms - 1)
@@ -66,7 +62,6 @@ public class Population {
             	int height, width;
             	width = dimensions[0];
             	height = dimensions[1];
-            	System.out.println("Random Kitchen size: " + width + ":" + height);
                 Room newIndividual = new Kitchen(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i + j, newIndividual);
                 if(i == numKitchens - 1)
@@ -80,12 +75,9 @@ public class Population {
             	int height, width;
             	width = dimensions[0];
             	height = dimensions[1];
-            	System.out.println("Random Dining Room size: " + width + ":" + height);
                 Room newIndividual = new DiningRoom(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i + j, newIndividual);
             }
-            System.out.println("Number of individuals: " + individuals.length);
-            //grid = fillGrid(0, 0, grid);
         }
     }
     
@@ -106,70 +98,6 @@ public class Population {
     	return dimensions;
     }
     
-
-    private int[][] fillGrid(int x, int y, int[][] grid){
-    	int startRowIndex, startColIndex;
-    	int lastRowIndex = x;
-    	int lastColIndex = y;
-    	for(int i = 0; i < individuals.length; i++){  
-    		startRowIndex = lastRowIndex;
-    		startColIndex = lastColIndex;
-    		for(int j = startRowIndex; j < (int)(individuals[i].getLength()); j++){
-    			for(int k = startColIndex; k < (int)(individuals[i].getHeight()); k++){
-    				try{
-    					// mark the border
-    					if(k == individuals[i].getHeight() -1 || j == individuals[i].getLength() -1 ){
-    						grid[j][k] = -1;
-    						
-    					} else {
-    						System.out.println("filling cell " + j + ":" + k + " with " + individuals[i].getRoomType());
-    						grid[j][k] = individuals[i].getRoomType();
-    					}
-    				} catch (ArrayIndexOutOfBoundsException e){
-    					System.out.println("won't fit");
-    					break;
-    					/*for(int l = 0; l < individuals.length; l++){
-    						if(grid[l][0] == 100);
-        					grid = fillGrid(l, 0, grid);
-    					}*/
-
-    				}
-    				if(k == individuals[i].getHeight() - 1){
-    					lastColIndex = k;
-    				}
-    			}
-    			try {
-					individuals[i].setxOffset(startRowIndex);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.exit(1);
-				}
-    			try {
-					individuals[i].setyOffset(startColIndex);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.exit(1);
-				}
-    		}
-    	}
-    	/*
-    	for(int a = 0; a < grid.length; a++){
-    		for(int b = 0; b < grid[0].length; b++){
-    			if(grid[a][b] == 100){
-    				System.out.print(" E ");
-    			} else if(grid[a][b] == -1) {
-    				System.out.print(" B ");
-    			} else {
-    				System.out.print(" " + grid[a][b] + " ");
-    			}
-    		}
-    		System.out.println("\n");
-    	}
-    	*/
-    	return grid;
-    }
     /* Getters */
     
     public Room[] getIndividuals() {

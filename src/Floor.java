@@ -56,7 +56,6 @@ public class Floor extends Space {
 		if(usedSquareFootage == 0)
 			return fitness;
 		double percentUsedSpace = (double)usedSquareFootage / (double)squareFootage;
-		System.out.println("percent used space: " + percentUsedSpace);
 		fitness = (int)(percentUsedSpace * 100);
 		System.out.println("used: " + usedSquareFootage + " total: " + squareFootage + " Fitness = " + fitness);
 		return fitness;

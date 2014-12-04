@@ -1,18 +1,23 @@
 
-public class Appliance {
+public class Appliance extends Space {
 	
+	/**
+	 * @param width
+	 * @param length
+	 * @param height
+	 * @param xOffset
+	 * @param yOffset
+	 */
+	public Appliance(int width, int length, int height, int xOffset, int yOffset, boolean on) {
+		super(width, length, height, xOffset, yOffset);
+	}
+
 	private int height = 0;
 	private int depth = 0;
 	private int width = 0;
 	private boolean on = false;
 	
-	public Appliance(int height, int depth, int width, boolean on) {
-		super();
-		this.height = height;
-		this.depth = depth;
-		this.width = width;
-		this.on = on;
-	}
+
 	
 	public int getHeight() {
 		return height;
@@ -37,5 +42,14 @@ public class Appliance {
 	}
 	public void setOn(boolean on) {
 		this.on = on;
+	}
+
+	/* (non-Javadoc)
+	 * @see Space#getFitness()
+	 */
+	@Override
+	public int getFitness() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

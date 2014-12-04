@@ -5,7 +5,6 @@ public class House extends Space {
 	private int numberOfFloors;
 	private int length;
 	private int width;
-	private int lastShrunkType;
 	private Population[] populations = new Population[5];
 
 	/**
@@ -103,15 +102,7 @@ public class House extends Space {
 			numBedrooms = 5;
 			numDiningRooms = 1;
 		}
-		// represent floor as a grid
-		/*
-		int[][] floorGrid = new int[width][length];
-		for(int a = 0; a < floorGrid.length; a++){
-			for(int b = 0; b < floorGrid[0].length; b++){
-				floorGrid[a][b] = 100;
-			}
-		}
-		 */
+
 		// create new population
 		Population pop = populations[level];
 		if(pop == null){
@@ -130,7 +121,7 @@ public class House extends Space {
 		int floorFootage = length * width;
 		Floor floor = new Floor(width, length, level, floorFootage);
 		// figure out the number of rooms
-		// we want at least a kitchen, a living room, bedroom, and bathroom
+		// we want at least a kitchen, a living room, dining room, and bathroom
 		int numBathrooms = 1;
 		int numLivingRooms = 1;
 		int numKitchens = 1;
@@ -154,7 +145,7 @@ public class House extends Space {
 		int floorFootage = length * width;
 		Floor floor = new Floor(width, length, level, floorFootage);
 		// figure out the number of rooms
-		// we want at least a kitchen, a living room, bedroom, and bathroom
+		// we want at least two bedrooms and a bathroom
 		int numBathrooms = 1;
 		int numLivingRooms = 0;
 		int numKitchens = 0;
@@ -191,14 +182,15 @@ public class House extends Space {
 		boolean clear = false;
 		PackRectangles<Room> pr = new PackRectangles<Room>(width, length, 0);
 		while(!clear){
+			// clear current rooms from floor
 			floor.clearRooms();
+			// loop through rooms to repack them
 			for(int r = 0; r < rooms.length; r++){
 				int rectWidth = rooms[r].getWidth();
 				int rectLength = rooms[r].getLength();
-				System.out.println("Total width: " + width + "; Total height: " + length + "; Rectangle lenght: " + rectLength + "; Rectangel width: " + rectWidth);
 				Rectangle rect = pr.insert(rectWidth, rectLength, rooms[r]);
+				// if it didn't fit, we need to shrink something
 				if(rect == null){
-					//mutate();
 					shrinkNextCandidate(rooms, pr);
 					// and start over
 					pr.clear();
@@ -216,6 +208,7 @@ public class House extends Space {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					// add room back to floor now that it fits
 					floor.addRoom(rooms[r]);
 					if(r == (rooms.length - 1)){
 						clear = true;
@@ -239,6 +232,7 @@ public class House extends Space {
 		// find the largest room
 		for(int i = 0; i < rooms.length; i++){
 			int roomSize = rooms[i].getLength() * rooms[i].getWidth();
+			// make sure shrinking the room wouldn't bring it under minimum length and width
 			if(roomSize > largestSize && rooms[i].getLength() > 4 && rooms[i].getWidth() > 4 ){
 				largestSize = roomSize;
 				largestRoom = i;
@@ -270,7 +264,6 @@ public class House extends Space {
 		for(int i = 0; i < floors.length; i++){
 			if(i == level){
 				floors[i] = floor;
-				System.out.println(floors[i].rooms[0].getFitness());
 			}
 		}
 	}

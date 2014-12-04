@@ -264,12 +264,11 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 			double heightScale = (APP_HEIGHT / buildingLength) / 1.2;
 			double width = buildingWidth * widthScale;
 			double height = buildingLength * heightScale;
-			
-			//g.setColor(Color.blue);
-			//g.drawRect(LEFT_MARGIN, TOP_MARGIN, (int)width, (int)height);
+			// if we don't have a house object already or if it's been reset, create a new one
 			if(house == null){
 				house = new House(g, numberOfFloors, (int) buildingWidth, (int) buildingLength, (Floor.CEILING_HEIGHT*numberOfFloors));
 			}
+			// if we are mutating a single generation, cloop through floors and mutate each population
 			if(mutateOnce){
 				for(int i = 1; i <= numberOfFloors; i++){
 					Floor mFloor = house.getFloors(i);
@@ -279,7 +278,9 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 				}
 				repaint();
 				mutateOnce = false;
+			// if we are mutating until we meet acceptance criterion, loop through floors and mutate each population
 			} else if(mutateUntilAcceptable){
+				int combinedFitness = 0;
 				for(int i = 1; i <= numberOfFloors; i++){
 					Floor mFloor = house.getFloors(i);
 					if(mFloor != null){
@@ -310,16 +311,17 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 			}
 			for(int i = 0; i < rooms.length; i++){
 				try {
+					// room position (scaled to 1024 X 768)
 					int xOffset = (int)(LEFT_MARGIN + (rooms[i].getxOffset() * widthScale));
 					int yOffset = (int)(TOP_MARGIN + (rooms[i].getyOffset() * heightScale));
+					// room dimensions (scaled to 1024 X 768)
 					int roomWidth = (int)(rooms[i].getWidth() * widthScale);
 					int roomHeight = (int)(rooms[i].getLength() * heightScale);
-					System.out.println("x offset: " + xOffset + "; y offset: " + yOffset + "; room width: " + roomWidth + "; room height: " + roomHeight );
+					// what color to make the rectangle
 					g.setColor(rooms[i].getRoomColor());
-					//g.drawRect(LEFT_MARGIN + rooms[i].getxOffset(), TOP_MARGIN + rooms[i].getyOffset(), rooms[i].getWidth(), rooms[i].getLength());
-					//g.fillRect(LEFT_MARGIN + rooms[i].getxOffset(), TOP_MARGIN + rooms[i].getyOffset(), rooms[i].getWidth(), rooms[i].getLength());
 					g.drawRect(xOffset, yOffset, roomWidth, roomHeight);
 					g.fillRect(xOffset+5, yOffset+5, roomWidth-5, roomHeight-5);
+					// put the name of the room in the rectangle
 					int stringX =  xOffset + 25;
 					int stringY =  yOffset + 25;
 					g.setColor(Color.blue);
