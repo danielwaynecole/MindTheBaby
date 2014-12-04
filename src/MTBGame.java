@@ -7,11 +7,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
 import java.util.Random;
 
 public class MTBGame extends JFrame implements ActionListener, MouseListener {
@@ -29,6 +34,7 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 	private static final int MAX_SQUARE_FOOTAGE = 3000;
 	private static final int MIN_NUMBER_OF_FLOORS = 1;
 	private static final int MAX_NUMBER_OF_FLOORS = 4;
+	private static final int ACCEPTABLE_SPACE_USED = 92;
 	
 	private int squareFootage;
 	private int numberOfFloors;
@@ -36,6 +42,10 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 	private double buildingLength;
 	private double buildingWidthPercentage;
 	private double buildingLengthPercentage;
+	private int currentLevel = 1;
+	private boolean mutateOnce = false;
+	private boolean mutateUntilAcceptable = false;
+	private House house;
 	private double scale;
 	private Graphics g;
 	private JButton basementButton;
@@ -43,15 +53,28 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 	private JButton secondFloorButton;
 	private JButton thirdFloorButton;
 	private JButton fourthFloorButton;
+	private JButton mutateOnceButton;
+	private JButton mutateCompleteButton;
+	private JButton resetButton;
 
-	
+	Container cp;
 	JPanel buttons = new JPanel();
 
+	/**
+	 * 
+	 */
 	public MTBGame() {
 		collectUserInput();
 		calculateBuildingDimensions();
-		
-		Container cp = getContentPane();
+		addButtons();
+	    addWindowListener(new WindowDestroyer());
+	    repaint();
+	    setVisible(true);
+	    setG(getGraphics());
+	}
+
+	private void addButtons(){
+		cp = getContentPane();
 	    setSize(APP_WIDTH, APP_HEIGHT);
 	    setLocation(100,100);
 	    setResizable(false);
@@ -104,15 +127,27 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 	    	}
 	    }
 	    
+	    mutateOnceButton = new JButton("Mutate Once");
+	    mutateOnceButton.setActionCommand("mutateOnce");
+	    mutateOnceButton.addActionListener(this);
+	    buttons.add(mutateOnceButton);
+	    
+	    mutateCompleteButton = new JButton("Mutate Complete");
+	    mutateCompleteButton.setActionCommand("mutateuntilacceptable");
+	    mutateCompleteButton.addActionListener(this);
+	    buttons.add(mutateCompleteButton);
+	    
+	    resetButton = new JButton("Reset");
+	    resetButton.setActionCommand("reset");
+	    resetButton.addActionListener(this);
+	    buttons.add(resetButton);
+	 
 	    cp.add(buttons, BorderLayout.AFTER_LAST_LINE);
-
-	    addWindowListener(new WindowDestroyer());
-
-	    repaint();
-	    setVisible(true);
-	    g = getGraphics();
 	}
-
+	
+	/**
+	 * 
+	 */
 	private void collectUserInput(){
 		boolean valid = false;
 		int squareFootage = 0;
@@ -120,14 +155,39 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 		while(!valid){
 			String s_squareFootage = JOptionPane.showInputDialog("Please enter square footage (minimum 600)"); 
 			String s_numberOfFloors = JOptionPane.showInputDialog("Please enter number of floors (maximum 3)"); 
-			squareFootage = Integer.parseInt(s_squareFootage); 
-			numberOfFloors = Integer.parseInt(s_numberOfFloors);
+			boolean invalidInput = false;
+			try {
+				squareFootage = Integer.parseInt(s_squareFootage); 
+			} catch (NumberFormatException e){
+				JOptionPane.showMessageDialog( null, "Please enter a valid square footage value.", "Invalid Input", JOptionPane.INFORMATION_MESSAGE);
+				invalidInput = true;
+			}
+			try {
+				numberOfFloors = Integer.parseInt(s_numberOfFloors);
+			} catch (NumberFormatException e){ 
+				invalidInput = true;
+				JOptionPane.showMessageDialog( null, "Please enter a valid square footage value.", "Invalid Input", JOptionPane.INFORMATION_MESSAGE);
+			}
+			if(s_squareFootage == null){
+				JOptionPane.showMessageDialog( null, "Please enter a valid number of floors value.", "Invalid Input", JOptionPane.INFORMATION_MESSAGE);				
+
+			}
+			if(invalidInput){
+				collectUserInput();
+				break;
+			}
 			valid = validateInputs(squareFootage, numberOfFloors);
 		}
 		this.squareFootage = squareFootage;
 		this.numberOfFloors = numberOfFloors;
 	}
 	
+	/**
+	 * 
+	 * @param squareFootage
+	 * @param numberOfFloors
+	 * @return
+	 */
 	private boolean validateInputs(int squareFootage, int numberOfFloors){
 		boolean valid = true;
 		if(squareFootage < MIN_SQUARE_FOOTAGE){
@@ -170,25 +230,35 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 		return valid;
 	}
 	
+	/**
+	 * 
+	 */
 	private void calculateBuildingDimensions(){
 		double rNum = randInt(40, 60);
 		double ratio = rNum / (100 - rNum);
 		double widthPercentage = rNum * .01;
 		double lengthPercentage = (100 - rNum) * .01;
-		buildingWidthPercentage = widthPercentage;
-		buildingLengthPercentage = lengthPercentage;	
+		setBuildingWidthPercentage(widthPercentage);
+		setBuildingLengthPercentage(lengthPercentage);	
 		double buildingWidth = Math.sqrt((squareFootage/numberOfFloors) / ratio);
 		double buildingLength = (squareFootage/numberOfFloors) / buildingWidth;
 		setBuildingWidth(buildingWidth);
 		setBuildingLength(buildingLength);
 	}
 	
+	/**
+	 * 
+	 */
 	public void paint(Graphics g){
 		this.paintComponents(g);
-		this.g = g;
+		this.setG(g);
 		drawBuilding(g);
 	}
 	
+	/**
+	 * 
+	 * @param g
+	 */
 	public void drawBuilding(Graphics g){
 			double widthScale = (APP_WIDTH / buildingWidth) / 1.2;
 			double heightScale = (APP_HEIGHT / buildingLength) / 1.2;
@@ -197,12 +267,47 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 			
 			//g.setColor(Color.blue);
 			//g.drawRect(LEFT_MARGIN, TOP_MARGIN, (int)width, (int)height);
-			House house = new House(g, numberOfFloors, (int) buildingWidth, (int) buildingLength, (Floor.CEILING_HEIGHT*numberOfFloors));
-			Floor[] floors = house.getFloors();
-			Room[] rooms = floors[1].getRooms();
+			if(house == null){
+				house = new House(g, numberOfFloors, (int) buildingWidth, (int) buildingLength, (Floor.CEILING_HEIGHT*numberOfFloors));
+			}
+			if(mutateOnce){
+				for(int i = 1; i <= numberOfFloors; i++){
+					Floor mFloor = house.getFloors(i);
+					if(mFloor != null){
+						house.mutate(i);
+					}
+				}
+				repaint();
+				mutateOnce = false;
+			} else if(mutateUntilAcceptable){
+				for(int i = 1; i <= numberOfFloors; i++){
+					Floor mFloor = house.getFloors(i);
+					if(mFloor != null){
+						while(mFloor.getFitness() < ACCEPTABLE_SPACE_USED){
+							house.mutate(i);
+						}
+
+					}
+				}
+				repaint();
+				mutateUntilAcceptable = false;
+			}
+			Floor floor = house.getFloors(currentLevel);
+			Room[] rooms = floor.getRooms();
 			g.setColor(Color.blue);
-			//g.drawRect(LEFT_MARGIN, TOP_MARGIN, (int)buildingWidth, (int)buildingLength);
 			g.drawRect(LEFT_MARGIN, TOP_MARGIN, (int)(buildingWidth*widthScale), (int)(buildingLength*heightScale));
+			if(currentLevel == 0){
+				BufferedImage image;
+				try {
+					image = ImageIO.read(new File("img/spider.jpg"));
+					g.drawImage(image, LEFT_MARGIN, TOP_MARGIN, (int)width, (int)height, null);
+				} catch (IOException ex) {
+					int x = (int)(LEFT_MARGIN + width) / 2;
+					int y = (int)(TOP_MARGIN + height) / 2;
+					g.setColor(Color.red);
+					g.drawString("DANGER!", x, y);
+				}
+			}
 			for(int i = 0; i < rooms.length; i++){
 				try {
 					int xOffset = (int)(LEFT_MARGIN + (rooms[i].getxOffset() * widthScale));
@@ -259,9 +364,45 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
-		
+		if (e.getActionCommand().equals("basement")) {
+			this.currentLevel = 0;
+			repaint();
+		} else if (e.getActionCommand().equals("floor1")) {
+			this.currentLevel = 1;
+			repaint();
+		} else if (e.getActionCommand().equals("floor2")) {
+			this.currentLevel = 2;
+			repaint();
+		} else if (e.getActionCommand().equals("floor3")) {
+			this.currentLevel = 3;
+			repaint();
+		} else if (e.getActionCommand().equals("floor1")) {
+			this.currentLevel = 4;
+			repaint();
+		} else if (e.getActionCommand().equals("mutateOnce")) {
+			mutateOnce = true;
+			repaint();
+		} else if (e.getActionCommand().equals("mutateuntilacceptable")) {
+			mutateUntilAcceptable = true;
+			repaint();
+		} else if (e.getActionCommand().equals("reset")) {
+			this.setHouse(null);
+			this.currentLevel = 1;
+			cp.removeAll();
+			buttons.removeAll();
+			collectUserInput();
+			calculateBuildingDimensions();
+			addButtons();
+			repaint();
+		}	
 	}
 	
+	/**
+	 * 
+	 * @param min
+	 * @param max
+	 * @return
+	 */
 	public static int randInt(int min, int max) {
 
 	    // Usually this can be a field rather than a method variable
@@ -296,5 +437,37 @@ public class MTBGame extends JFrame implements ActionListener, MouseListener {
 
 	public double getScale() {
 		return scale;
+	}
+
+	public void setBuildingLengthPercentage(double buildingLengthPercentage) {
+		this.buildingLengthPercentage = buildingLengthPercentage;
+	}
+
+	public double getBuildingLengthPercentage() {
+		return buildingLengthPercentage;
+	}
+
+	public void setBuildingWidthPercentage(double buildingWidthPercentage) {
+		this.buildingWidthPercentage = buildingWidthPercentage;
+	}
+
+	public double getBuildingWidthPercentage() {
+		return buildingWidthPercentage;
+	}
+
+	public void setG(Graphics g) {
+		this.g = g;
+	}
+
+	public Graphics getG() {
+		return g;
+	}
+	
+	public House getHouse() {
+		return house;
+	}
+
+	public void setHouse(House house) {
+		this.house = house;
 	}
 }

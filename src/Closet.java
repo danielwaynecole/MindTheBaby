@@ -14,5 +14,11 @@ public class Closet extends Space {
 	public Poison[] getPoisons() {
 		return poisons;
 	}
+
+	@Override
+	public int getFitness() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }

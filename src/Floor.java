@@ -9,10 +9,12 @@ public class Floor extends Space {
 	public static final int CEILING_HEIGHT = 9;
 	
 	private int floorLevel;
+	private int squareFootage;
 	
-	public Floor(int width, int length, int floorLevel) {
+	public Floor(int width, int length, int floorLevel, int squareFootage) {
 		super(width, length, CEILING_HEIGHT, 0, 0);
 		this.setFloorLevel(floorLevel);
+		this.setSquareFootage(squareFootage);
 	}
 
 	Room[] rooms = new Room[20];
@@ -37,6 +39,28 @@ public class Floor extends Space {
 		}
 		this.rooms = newRooms;
 	}
+	public int getRoomFitness(Room room){
+		return room.getFitness(this.getWidth(), this.getLength());
+	}
+	
+	public int getFitness(){
+		int fitness = 0;
+		int usedSquareFootage = 0;
+		for(int i = 0; i < rooms.length; i++){
+			if(rooms[i] == null){
+				continue;
+			} else {
+				usedSquareFootage += (rooms[i].getLength() * rooms[i].getWidth());
+			}
+		}
+		if(usedSquareFootage == 0)
+			return fitness;
+		double percentUsedSpace = (double)usedSquareFootage / (double)squareFootage;
+		System.out.println("percent used space: " + percentUsedSpace);
+		fitness = (int)(percentUsedSpace * 100);
+		System.out.println("used: " + usedSquareFootage + " total: " + squareFootage + " Fitness = " + fitness);
+		return fitness;
+	}
 	
 	public Room[] getRooms() {
 		return rooms;
@@ -54,6 +78,12 @@ public class Floor extends Space {
 		}
 		return null;
 	}
+	
+	public void clearRooms(){
+		for(int i = 0; i < rooms.length; i++){
+			rooms[i] = null;
+		}
+	}
 
 	public void setFloorLevel(int floorLevel) {
 		this.floorLevel = floorLevel;
@@ -61,5 +91,13 @@ public class Floor extends Space {
 
 	public int getFloorLevel() {
 		return floorLevel;
+	}
+
+	public void setSquareFootage(int squareFootage) {
+		this.squareFootage = squareFootage;
+	}
+
+	public int getSquareFootage() {
+		return squareFootage;
 	}
 }

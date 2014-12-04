@@ -1,10 +1,9 @@
 
 public class Population {
     Room[] individuals;
-    int numBedrooms, numBathrooms, numLivingRooms, numKitchens, numDiningRooms;
-    /*
-     * Constructors
-     */
+
+	int numBedrooms, numBathrooms, numLivingRooms, numKitchens, numDiningRooms;
+
     // Create a population
     public Population(int numBedrooms, int numBathrooms,int numLivingRooms,int numKitchens, int numDiningRooms, boolean initialize) {
         this.numBathrooms = numBathrooms;
@@ -13,6 +12,7 @@ public class Population {
         this.numLivingRooms = numLivingRooms;
         this.numDiningRooms = numDiningRooms;
     	int populationSize = numBedrooms + numBathrooms + numLivingRooms + numKitchens + numDiningRooms;
+    	System.out.println("Population size: " + populationSize);
     	individuals = new Room[populationSize];
         // initialize population
         if (initialize) {
@@ -73,7 +73,7 @@ public class Population {
                 	j = j + i + 1;
             }
             // then dining rooms
-            for (int i = 0; i < numKitchens; i++) {
+            for (int i = 0; i < numDiningRooms; i++) {
             	double brSquareFootage = MTBGame.randInt(DiningRoom.MIN_SQUARE_FOOTAGE, DiningRoom.MAX_SQUARE_FOOTAGE);
             	int[] dimensions = new int[2];
             	dimensions = getDimensions(brSquareFootage);
@@ -83,8 +83,6 @@ public class Population {
             	System.out.println("Random Dining Room size: " + width + ":" + height);
                 Room newIndividual = new DiningRoom(width, height, Floor.CEILING_HEIGHT, 0, 0);
                 saveIndividual(i + j, newIndividual);
-                if(i == numKitchens - 1)
-                	j = j + i + 1;
             }
             System.out.println("Number of individuals: " + individuals.length);
             //grid = fillGrid(0, 0, grid);
@@ -140,8 +138,20 @@ public class Population {
     					lastColIndex = k;
     				}
     			}
-    			individuals[i].setxOffset(startRowIndex);
-    			individuals[i].setyOffset(startColIndex);
+    			try {
+					individuals[i].setxOffset(startRowIndex);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.exit(1);
+				}
+    			try {
+					individuals[i].setyOffset(startColIndex);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.exit(1);
+				}
     		}
     	}
     	/*
@@ -172,22 +182,28 @@ public class Population {
     public Room getFittest() {
         Room fittest = individuals[0];
         // Loop through individuals to find fittest
-        for (int i = 0; i < size(); i++) {
-            if (fittest.getFitness() <= getIndividual(i).getFitness()) {
-                fittest = getIndividual(i);
-            }
+        for (int i = 0; i < individuals.length; i++) {
+        	if(individuals[i] != null){
+        		if (fittest.getFitness() <= getIndividual(i).getFitness()) {
+        			fittest = getIndividual(i);
+        		}
+        	}
         }
         return fittest;
-    }
-
-    /* Public methods */
-    // Get population size
-    public int size() {
-        return individuals.length;
     }
 
     // Save individual
     public void saveIndividual(int index, Room indiv) {
         individuals[index] = indiv;
+    }
+    
+    public void setIndividuals(Room[] individuals) {
+		this.individuals = individuals;
+	}
+    
+    public void clearIndividuals(){
+    	for(int i = 0; i < individuals.length; i++){
+    		individuals[i] = null;
+    	}
     }
 }

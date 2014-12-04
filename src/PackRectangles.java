@@ -4,12 +4,7 @@ import java.util.List;
 public class PackRectangles<P> {
 
 	private static enum Fit {
-		// Indicates that the rectangle did not fit
-		FAIL,
-		//Indicates that the rectangle fits perfectly
-		PERFECT,
-		// Indicates that the rectangle fit with room to spare
-		FIT
+		FAIL_FIT,PERFECT_FIT,FIT
 	};
 
 	private Node root;
@@ -87,11 +82,9 @@ public class PackRectangles<P> {
 		private Node insert(int width, int height, P o) {
 			if (!isLeaf()) {
 				Node r = left.insert(width, height, o);
-
 				if (r == null) {
 					r = right.insert(width, height, o);
 				}
-
 				return r;
 			} else {
 				if (occupier != null) {
@@ -101,16 +94,15 @@ public class PackRectangles<P> {
 				Fit fit = fits(width, height);
 
 				switch (fit) {
-				case FAIL:
+				case FAIL_FIT:
 					return null;
-				case PERFECT:
+				case PERFECT_FIT:
 					occupier = o;
 					return this;
 				case FIT:
 					split(width, height);
 					break;
 				}
-
 				return left.insert(width, height, o);
 			}
 		}
@@ -128,7 +120,6 @@ public class PackRectangles<P> {
 			if (isLeaf()) {
 				if (occupier == o) {
 					occupier = null;
-
 					return true;
 				}
 				return false;
@@ -137,14 +128,12 @@ public class PackRectangles<P> {
 				if (!found) {
 					found = right.remove(o);
 				}
-
 				if (found) {
 					if (!left.isOccupied() && !right.isOccupied()) {
 						left = null;
 						right = null;
 					}
 				}
-
 				return found;
 			}
 		}
@@ -159,14 +148,11 @@ public class PackRectangles<P> {
 			Rectangle r, l;
 			if (dw > dh) {
 				l = new Rectangle(rect.x, rect.y, width, rect.height);
-
 				r = new Rectangle(l.x + width, rect.y, rect.width - width,
 						rect.height);
 			} else {
 				l = new Rectangle(rect.x, rect.y, rect.width, height);
-
-				r = new Rectangle(rect.x, l.y + height, rect.width, rect.height
-						- height);
+				r = new Rectangle(rect.x, l.y + height, rect.width, rect.height - height);
 			}
 
 			left = new Node(l);
@@ -176,13 +162,13 @@ public class PackRectangles<P> {
 		private Fit fits(int width, int height) {
 			if (width <= rect.width && height <= rect.height) {
 				if (width == rect.width && height == rect.height) {
-					return Fit.PERFECT;
+					return Fit.PERFECT_FIT;
 				} else {
 					return Fit.FIT;
 				}
 			}
 
-			return Fit.FAIL;
+			return Fit.FAIL_FIT;
 		}
 
 		private void getRectangles(List<Rectangle> rectangles) {

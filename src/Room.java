@@ -31,6 +31,28 @@ public class Room extends Space {
 		int fitness = 0;
 		return fitness;
 	}
+	
+	public int getFitness(int width, int length){
+		int fitness = 0;
+		return fitness;
+	}
+	
+	public void setWidth(int w) throws Exception{
+		if(w < 5){
+			throw new Exception("width is less than 0");
+		} else {
+			this.width = w;
+		}
+	}
+	
+	public void setLength(int l) throws Exception{
+		if(l < 5){
+			throw new Exception("length is less than 0");
+		} else {
+			this.length = l;
+		}
+	}
+
 
 	public int getRoomType() {
 		return roomType;

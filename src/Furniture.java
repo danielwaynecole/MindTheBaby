@@ -6,4 +6,10 @@ public class Furniture extends Space{
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public int getFitness() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

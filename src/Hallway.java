@@ -5,5 +5,10 @@ public class Hallway extends Space{
 		super(width, length, height, xOffset, yOffset);
 		// TODO Auto-generated constructor stub
 	}
+	@Override
+	public int getFitness() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 }
